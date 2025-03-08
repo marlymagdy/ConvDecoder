@@ -150,14 +150,18 @@ def fit(net,
 
     if loss_type=="MSE":
        # mse = torch.nn.MSELoss() ##############################################
-           def mse(pred, gt):
-                      real_pred, imag_pred = torch.unbind(pred, dim=1)  # Split real and imaginary parts
-                      real_gt, imag_gt = torch.unbind(gt, dim=1)
-                      
-                      criterion = torch.nn.MSELoss()
-                      mse_real = criterion(real_pred, real_gt)
-                      mse_imag = criterion(imag_pred, imag_gt)
-                      return mse_real + mse_imag  # Sum both real and imaginary losses
+               def mse(pred, gt):
+                   print("Pred shape:", pred.shape)  # Debugging
+                   print("GT shape:", gt.shape)
+           
+                   real_pred, imag_pred = torch.split(pred, 1, dim=1)  # Split real and imaginary parts
+                   real_gt, imag_gt = torch.split(gt, 1, dim=1)
+           
+                   criterion = torch.nn.MSELoss()
+                   mse_real = criterion(real_pred, real_gt)
+                   mse_imag = criterion(imag_pred, imag_gt)
+                   
+                   return mse_real + mse_imag  # Sum both real and imaginary losses
     if loss_type == "MSLE":
         mse = MSLELoss()
     if loss_type=="L1":
