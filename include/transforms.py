@@ -63,7 +63,8 @@ def fft2(data):
     """
     assert data.size(-1) == 2
     data = ifftshift(data, dim=(-3, -2))
-    data = torch.fft(data, 2, normalized=True)
+    #data = torch.fft(data, 2, normalized=True) ########################
+    data = torch.fft.fft2(data, dim=(-2, -1), norm="ortho")
     data = fftshift(data, dim=(-3, -2))
     return data
 
