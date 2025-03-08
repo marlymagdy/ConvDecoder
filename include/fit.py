@@ -42,7 +42,7 @@ def get_weights(net):
         if isinstance(m, nn.Conv2d):
             weights += [m.weight.data.cpu().numpy()]
     return weights
-
+"""
 class MSLELoss(torch.nn.Module):
     def __init__(self):
         super(MSLELoss,self).__init__()
@@ -50,6 +50,20 @@ class MSLELoss(torch.nn.Module):
     def forward(self,x,y):
         criterion = nn.MSELoss()
         loss = torch.log(criterion(x, y))
+        return loss
+"""
+class MSLELoss(torch.nn.Module):
+    def __init__(self):
+        super(MSLELoss, self).__init__()
+
+    def forward(self, x, y):
+        criterion = nn.MSELoss()
+
+        # Convert complex tensors to 2-channel real tensors
+        x_real_imag = torch.cat([x.real, x.imag], dim=1) if torch.is_complex(x) else x
+        y_real_imag = torch.cat([y.real, y.imag], dim=1) if torch.is_complex(y) else y
+
+        loss = torch.log(criterion(x_real_imag, y_real_imag))
         return loss
 
 def fit(net,
@@ -204,11 +218,11 @@ def fit(net,
                 
             # training loss
             if mask_var is not None:
-                loss = mse( out.real * mask_var , img_noisy_var.real * mask_var )#######################
+                loss = mse( out * mask_var , img_noisy_var * mask_var )#######################
             elif apply_f:
-                loss = mse( apply_f(out.real,mask) , img_noisy_var.real )
+                loss = mse( apply_f(out,mask) , img_noisy_var )
             else:
-                loss = mse(out.real, img_noisy_var.real)
+                loss = mse(out, img_noisy_var)
         
             loss.backward(retain_graph=retain_graph)
             
