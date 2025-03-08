@@ -204,11 +204,11 @@ def fit(net,
                 
             # training loss
             if mask_var is not None:
-                loss = mse( out * mask_var , img_noisy_var * mask_var )
+                loss = mse( out.real * mask_var , img_noisy_var.real * mask_var )#######################
             elif apply_f:
-                loss = mse( apply_f(out,mask) , img_noisy_var )
+                loss = mse( apply_f(out.real,mask) , img_noisy_var.real )
             else:
-                loss = mse(out, img_noisy_var)
+                loss = mse(out.real, img_noisy_var.real)
         
             loss.backward(retain_graph=retain_graph)
             
