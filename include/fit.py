@@ -42,7 +42,7 @@ def get_weights(net):
         if isinstance(m, nn.Conv2d):
             weights += [m.weight.data.cpu().numpy()]
     return weights
-"""
+           
 class MSLELoss(torch.nn.Module):
     def __init__(self):
         super(MSLELoss,self).__init__()
@@ -65,7 +65,7 @@ class MSLELoss(torch.nn.Module):
 
         loss = torch.log(criterion(x_real_imag, y_real_imag))
         return loss
-
+"""
 def fit(net,
         img_noisy_var,
         num_channels,
@@ -150,18 +150,43 @@ def fit(net,
 
     if loss_type=="MSE":
        # mse = torch.nn.MSELoss() ##############################################
-               def mse(pred, gt):
-                   print("Pred shape:", pred.shape)  # Debugging
-                   print("GT shape:", gt.shape)
            
-                   real_pred, imag_pred = torch.split(pred, 1, dim=1)  # Split real and imaginary parts
-                   real_gt, imag_gt = torch.split(gt, 1, dim=1)
+           def mse(pred, gt):
+               """
+               Computes the Mean Squared Error (MSE) loss.
+               - If the input has an imaginary part (last dim=2), it computes MSE for both real and imaginary parts separately.
+               - If the input is purely real, it directly computes MSE.
+               
+               Args:
+                   pred (torch.Tensor): Predicted tensor (can have shape [..., 2] for complex values).
+                   gt (torch.Tensor): Ground truth tensor (same shape as pred).
+               
+               Returns:
+                   torch.Tensor: MSE loss value.
+               """
+               criterion = nn.MSELoss()
            
-                   criterion = torch.nn.MSELoss()
+               # Check if the last dimension is 2 (indicating real & imaginary parts)
+               if pred.shape[-1] == 2 and gt.shape[-1] == 2:
+                   # Split real and imaginary parts
+                   real_pred, imag_pred = torch.split(pred, 1, dim=-1)
+                   real_gt, imag_gt = torch.split(gt, 1, dim=-1)
+           
+                   # Remove extra dimension (converting from [..., 1] to [...])
+                   real_pred, imag_pred = real_pred.squeeze(-1), imag_pred.squeeze(-1)
+                   real_gt, imag_gt = real_gt.squeeze(-1), imag_gt.squeeze(-1)
+           
+                   # Compute MSE for real and imaginary parts separately
                    mse_real = criterion(real_pred, real_gt)
                    mse_imag = criterion(imag_pred, imag_gt)
-                   
-                   return mse_real + mse_imag  # Sum both real and imaginary losses
+           
+                   return mse_real + mse_imag  # Sum both losses
+           
+               else:
+                   # If purely real, compute MSE directly
+                   return criterion(pred, gt)
+
+
     if loss_type == "MSLE":
         mse = MSLELoss()
     if loss_type=="L1":
