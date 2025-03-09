@@ -149,40 +149,7 @@ def fit(net,
         optimizer = torch.optim.Adagrad(p, lr=LR,weight_decay=weight_decay)
 
     if loss_type=="MSE":
-       # mse = torch.nn.MSELoss() ##############################################
-
-           def mse(pred, gt):
-               """
-               Computes MSE loss.
-               - If `pred` and `gt` are complex tensors, compute loss separately on real and imaginary parts.
-               - If they are real tensors, compute standard MSE.
-               
-               Args:
-                   pred (torch.Tensor): Predicted tensor (real or complex).
-                   gt (torch.Tensor): Ground truth tensor (same shape as pred).
-               
-               Returns:
-                   torch.Tensor: MSE loss.
-               """
-               criterion = nn.MSELoss()
-           
-               if torch.is_complex(pred) and torch.is_complex(gt):
-                   mse_real = criterion(pred.real, gt.real)
-                   mse_imag = criterion(pred.imag, gt.imag)
-                   return mse_real + mse_imag
-           
-               elif pred.shape[-1] == 2 and gt.shape[-1] == 2:
-                   real_pred, imag_pred = pred[..., 0], pred[..., 1]
-                   real_gt, imag_gt = gt[..., 0], gt[..., 1]
-                   mse_real = criterion(real_pred, real_gt)
-                   mse_imag = criterion(imag_pred, imag_gt)
-                   return mse_real + mse_imag
-           
-               else:
-                   return criterion(pred, gt)
-
-           
-
+       mse = torch.nn.MSELoss() ##############################################
     if loss_type == "MSLE":
         mse = MSLELoss()
     if loss_type=="L1":
