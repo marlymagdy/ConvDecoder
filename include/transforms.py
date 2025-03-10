@@ -7,7 +7,7 @@ LICENSE file in the root directory of this source tree.
 
 import numpy as np
 import torch
-
+from .helpers import *
 
 def to_tensor(data):
     """
@@ -63,8 +63,8 @@ def fft2(data):
     """
     assert data.size(-1) == 2
     data = ifftshift(data, dim=(-3, -2))
-    #data = torch.fft(data, 2, normalized=True) ########################
-    data = torch.fft.fft2(data, dim=(-2, -1), norm="ortho")
+    data = torch.fft(data, 2, normalized=True) ########################
+    #data = torch.fft.fft2(data, dim=(-2, -1), norm="ortho")
     data = fftshift(data, dim=(-3, -2))
     return data
 
@@ -83,8 +83,8 @@ def ifft2(data):
     """
     assert data.size(-1) == 2
     data = ifftshift(data, dim=(-3, -2))
-    #data = torch.ifft(data, 2, normalized=True) #####################################
-    data = torch.fft.ifftn(data, dim=(-2, -1), norm="ortho")
+    data = torch.ifft(data, 2, normalized=True) #####################################
+    #data = torch.fft.ifftn(data, dim=(-2, -1), norm="ortho")
     data = fftshift(data, dim=(-3, -2))
     return data
 
